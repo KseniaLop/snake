@@ -38,9 +38,12 @@ change_to = direction
 
 score = 0
 
+lives = 3
+
 game_exit = False
 
 
+# не используется
 def show_score():
     score_surface, score_rect = text_objects("Score: " + str(score), white, 'small')
     game_window.blit(score_surface, score_rect)
@@ -53,9 +56,11 @@ def text_objects(text, color, size):
     return text_surface, text_surface.get_rect()
 
 
-def message_to_screen(msg, color, y_displace, size):
+def message_to_screen(msg, color, y_displace, size, win_x, win_y):
     text_surface, text_rect = text_objects(msg, color, size)
-    text_rect.center = (window_x / 2), (window_y / 2) + y_displace
+    x = win_x
+    y = win_y
+    text_rect.center = (x / 2), (y / 2) + y_displace
     game_window.blit(text_surface, text_rect)
 
 
@@ -77,11 +82,15 @@ def pause():
         message_to_screen("Paused",
                           black,
                           -100,
-                          'large')
+                          'large',
+                          window_x,
+                          window_y)
         message_to_screen("Нажми C, чтобы продолжить, или Q, чтобы выйти",
                           black,
                           25,
-                          'small')
+                          'small',
+                          window_x,
+                          window_y)
         pygame.display.update()
         pygame.time.Clock().tick(5)
 
@@ -90,7 +99,9 @@ def game_over():
     message_to_screen("Your score is: " + str(score),
                       white,
                       0,
-                      'small')
+                      'small',
+                      window_x,
+                      window_y)
     pygame.display.flip()
 
     time.sleep(2)
@@ -159,18 +170,23 @@ while not game_exit:
     pygame.draw.rect(game_window, white, pygame.Rect(
         fruit_position[0], fruit_position[1], 10, 10))
 
-    # Game Over conditions
-    if snake_position[0] < 0 or snake_position[0] > window_x - 10:
+    # game over and lives
+    if (snake_position[0] < 0 or snake_position[0] > window_x - 10) and lives == 0:
         game_over()
-    if snake_position[1] < 0 or snake_position[1] > window_y - 10:
+    if (snake_position[0] < 0 or snake_position[0] > window_x - 10) and lives > 0:
+        lives -= 1
+    if (snake_position[1] < 0 or snake_position[1] > window_y - 10) and lives == 0:
         game_over()
+    if (snake_position[1] < 0 or snake_position[1] > window_y - 10) and lives > 0:
+        lives -= 1
 
     # Touching the snake body
     for block in snake_body[1:]:
-        if snake_position[0] == block[0] and snake_position[1] == block[1]:
+        if snake_position[0] == block[0] and snake_position[1] == block[1] and lives == 0:
             game_over()
 
-    show_score()
+    message_to_screen("Score: " + str(score), white, 10, 'small', 100, 0)
+    message_to_screen("Lives: " + str(lives), white, 10, 'small', 500, 0)
     pygame.display.update()
     pygame.time.Clock().tick(snake_speed)
 
