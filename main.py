@@ -173,19 +173,19 @@ while not game_exit:
     # game over and lives
     if (snake_position[0] < 0 or snake_position[0] > window_x - 10) and lives == 0:
         game_over()
-    if (snake_position[0] < 0 or snake_position[0] > window_x - 10) and lives > 0:
-        lives -= 1
+    #if (snake_position[0] < 0 or snake_position[0] > window_x - 10) and lives > 0:
+        #lives -= 1
     if (snake_position[1] < 0 or snake_position[1] > window_y - 10) and lives == 0:
         game_over()
-    if (snake_position[1] < 0 or snake_position[1] > window_y - 10) and lives > 0:
-        lives -= 1
+    #if (snake_position[1] < 0 or snake_position[1] > window_y - 10) and lives > 0:
+        #lives -= 1
 
     # Touching the snake body
     for block in snake_body[1:]:
         if snake_position[0] == block[0] and snake_position[1] == block[1] and lives == 0:
             game_over()
 
-    message_to_screen("Score: " + str(score), white, 10, 'small', 100, 0)
+    message_to_screen("Score: " + str(score), white, 10, 'small', 120, 0)
     message_to_screen("Lives: " + str(lives), white, 10, 'small', 500, 0)
     pygame.display.update()
     pygame.time.Clock().tick(snake_speed)
