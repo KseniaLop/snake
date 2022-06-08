@@ -2,51 +2,39 @@ import pygame
 import time
 import random
 
+from domain import *
 
-snake_speed = 15
 
-window_x = 720
-window_y = 480
+GAME_DATA = DefaultGameData()
+
+GAME_SPEED = GAME_DATA.get_default_game_speed()
 
 pygame.init()
 
-pygame.display.set_caption('Змейка')
-game_window = pygame.display.set_mode((window_x, window_y))
+pygame.display.set_caption(GAME_DATA.get_window_title())
+GAME_WINDOW = pygame.display.set_mode((GAME_DATA.get_window_width(), GAME_DATA.get_window_height()))
 
-fps = pygame.time.Clock
+SCORE_TEXT_POSITION = GAME_DATA.get_score_text_position()
+LIVES_TEXT_POSITION = GAME_DATA.get_lives_text_position()
 
-black = pygame.Color(0, 0, 0)
-white = pygame.Color(255, 255, 255)
-red = pygame.Color(255, 0, 0)
-green = pygame.Color(0, 255, 0)
-blue = pygame.Color(0, 0, 255)
+SNAKE_POSITION = [100, 50]
 
+SNAKE_BODY = [(100, 50),
+              (90, 50),
+              (80, 50),
+              (70, 50)]
 
-snake_position = [100, 50]
+FRUIT_POSITION = (random.randrange(1, (GAME_DATA.get_window_width() // 10)) * 10,
+                  random.randrange(1, (GAME_DATA.get_window_height() // 10)) * 10)
+FRUIT_SPAWN = True
 
-snake_body = [[100, 50],
-              [90, 50],
-              [80, 50],
-              [70, 50]]
+DIRECTION = GAME_DATA.get_default_direction()
+CHANGE_TO = DIRECTION
 
-fruit_position = [random.randrange(1, (window_x//10)) * 10,
-                  random.randrange(1, (window_y//10)) * 10]
-fruit_spawn = True
+SCORE = GAME_DATA.get_default_score()
+LIVES = GAME_DATA.get_default_lives()
 
-direction = 'RIGHT'
-change_to = direction
-
-score = 0
-
-lives = 3
-
-game_exit = False
-
-
-# не используется
-def show_score():
-    score_surface, score_rect = text_objects("Score: " + str(score), white, 'small')
-    game_window.blit(score_surface, score_rect)
+GAME_EXIT = False
 
 
 def text_objects(text, color, size):
@@ -61,7 +49,7 @@ def message_to_screen(msg, color, y_displace, size, win_x, win_y):
     x = win_x
     y = win_y
     text_rect.center = (x / 2), (y / 2) + y_displace
-    game_window.blit(text_surface, text_rect)
+    GAME_WINDOW.blit(text_surface, text_rect)
 
 
 def pause():
@@ -69,39 +57,62 @@ def pause():
     while paused:
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
-                pygame.QUIT
                 quit()
             if e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_c:
                     paused = False
                 elif e.key == pygame.K_q:
-                    pygame.QUIT
                     quit()
 
-        game_window.fill(white)
+        GAME_WINDOW.fill(GameColor.WHITE.value)
         message_to_screen("Paused",
-                          black,
+                          GameColor.BLACK.value,
                           -100,
                           'large',
-                          window_x,
-                          window_y)
+                          GAME_DATA.get_window_width(),
+                          GAME_DATA.get_window_height())
         message_to_screen("Нажми C, чтобы продолжить, или Q, чтобы выйти",
-                          black,
+                          GameColor.BLACK.value,
                           25,
                           'small',
-                          window_x,
-                          window_y)
+                          GAME_DATA.get_window_width(),
+                          GAME_DATA.get_window_height())
         pygame.display.update()
         pygame.time.Clock().tick(5)
 
 
+def generate_food():
+    global FRUIT_POSITION
+
+    x = random.randrange(1, (GAME_DATA.get_window_width() // 10)) * 10
+    y = random.randrange(1, (GAME_DATA.get_window_height() // 10)) * 10
+
+    FRUIT_POSITION = (x, y)
+
+
+def respawn():
+    global SNAKE_POSITION
+    global SNAKE_BODY
+    global DIRECTION
+    global CHANGE_TO
+
+    time.sleep(0.5)
+
+    SNAKE_POSITION = GAME_DATA.get_default_snake_position()
+    SNAKE_BODY = GAME_DATA.get_default_snake_body()
+    DIRECTION = GAME_DATA.get_default_direction()
+    CHANGE_TO = DIRECTION
+
+    generate_food()
+
+
 def game_over():
-    message_to_screen("Your score is: " + str(score),
-                      white,
+    message_to_screen("Your score is: " + str(SCORE),
+                      GameColor.WHITE.value,
                       0,
                       'small',
-                      window_x,
-                      window_y)
+                      GAME_DATA.get_window_width(),
+                      GAME_DATA.get_window_height())
     pygame.display.flip()
 
     time.sleep(2)
@@ -109,88 +120,88 @@ def game_over():
     quit()
 
 
-while not game_exit:
+while not GAME_EXIT:
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                change_to = 'UP'
+                CHANGE_TO = Direction.UP.value
             if event.key == pygame.K_DOWN:
-                change_to = 'DOWN'
+                CHANGE_TO = Direction.DOWN.value
             if event.key == pygame.K_LEFT:
-                change_to = 'LEFT'
+                CHANGE_TO = Direction.LEFT.value
             if event.key == pygame.K_RIGHT:
-                change_to = 'RIGHT'
+                CHANGE_TO = Direction.RIGHT.value
             if event.key == pygame.K_p:
                 pause()
         if event.type == pygame.QUIT:
-            game_exit = True
+            GAME_EXIT = True
 
-    # If two keys pressed simultaneously
-    # we don't want snake to move into two
-    # directions simultaneously
-    if change_to == 'UP' and direction != 'DOWN':
-        direction = 'UP'
-    if change_to == 'DOWN' and direction != 'UP':
-        direction = 'DOWN'
-    if change_to == 'LEFT' and direction != 'RIGHT':
-        direction = 'LEFT'
-    if change_to == 'RIGHT' and direction != 'LEFT':
-        direction = 'RIGHT'
+    if CHANGE_TO == 'UP' and DIRECTION != 'DOWN':
+        DIRECTION = 'UP'
+    if CHANGE_TO == 'DOWN' and DIRECTION != 'UP':
+        DIRECTION = 'DOWN'
+    if CHANGE_TO == 'LEFT' and DIRECTION != 'RIGHT':
+        DIRECTION = 'LEFT'
+    if CHANGE_TO == 'RIGHT' and DIRECTION != 'LEFT':
+        DIRECTION = 'RIGHT'
 
-    # Moving the snake
-    if direction == 'UP':
-        snake_position[1] -= 10
-    if direction == 'DOWN':
-        snake_position[1] += 10
-    if direction == 'LEFT':
-        snake_position[0] -= 10
-    if direction == 'RIGHT':
-        snake_position[0] += 10
+    if DIRECTION == 'UP':
+        SNAKE_POSITION[1] -= 10
+    if DIRECTION == 'DOWN':
+        SNAKE_POSITION[1] += 10
+    if DIRECTION == 'LEFT':
+        SNAKE_POSITION[0] -= 10
+    if DIRECTION == 'RIGHT':
+        SNAKE_POSITION[0] += 10
 
     # Snake body growing mechanism
     # if fruits and snakes collide then scores
     # will be incremented by 10
-    snake_body.insert(0, list(snake_position))
-    if snake_position[0] == fruit_position[0] and snake_position[1] == fruit_position[1]:
-        score += 10
-        fruit_spawn = False
+    SNAKE_BODY.insert(0, tuple(SNAKE_POSITION))
+    if SNAKE_POSITION[0] == FRUIT_POSITION[0] and SNAKE_POSITION[1] == FRUIT_POSITION[1]:
+        SCORE += 10
+        FRUIT_SPAWN = False
     else:
-        snake_body.pop()
+        SNAKE_BODY.pop()
 
-    if not fruit_spawn:
-        fruit_position = [random.randrange(1, (window_x // 10)) * 10,
-                          random.randrange(1, (window_y // 10)) * 10]
+    if not FRUIT_SPAWN:
+        generate_food()
+        FRUIT_SPAWN = True
 
-    fruit_spawn = True
-    game_window.fill(black)
+    GAME_WINDOW.fill(GameColor.BLACK.value)
 
-    for pos in snake_body:
-        pygame.draw.rect(game_window, green,
-                         pygame.Rect(pos[0], pos[1], 10, 10))
-    pygame.draw.rect(game_window, white, pygame.Rect(
-        fruit_position[0], fruit_position[1], 10, 10))
+    for cell in SNAKE_BODY:
+        pygame.draw.rect(GAME_WINDOW, GameColor.GREEN.value,
+                         pygame.Rect(cell[0], cell[1], 10, 10))
+    pygame.draw.rect(GAME_WINDOW, GameColor.WHITE.value, pygame.Rect(
+        FRUIT_POSITION[0], FRUIT_POSITION[1], 10, 10))
 
-    # game over and lives
-    if (snake_position[0] < 0 or snake_position[0] > window_x - 10) and lives == 0:
-        game_over()
-    #if (snake_position[0] < 0 or snake_position[0] > window_x - 10) and lives > 0:
-        #lives -= 1
-    if (snake_position[1] < 0 or snake_position[1] > window_y - 10) and lives == 0:
-        game_over()
-    #if (snake_position[1] < 0 or snake_position[1] > window_y - 10) and lives > 0:
-        #lives -= 1
+    if SNAKE_POSITION[0] < 0 or SNAKE_POSITION[0] > GAME_DATA.get_window_width() - 10 or \
+            SNAKE_POSITION[1] < 0 or SNAKE_POSITION[1] > GAME_DATA.get_window_height() - 10:
+        if LIVES == 1:
+            game_over()
+        else:
+            LIVES -= 1
+            respawn()
 
     # Touching the snake body
-    for block in snake_body[1:]:
-        if snake_position[0] == block[0] and snake_position[1] == block[1] and lives == 0:
-            game_over()
+    for cell in SNAKE_BODY[1:]:
+        if SNAKE_POSITION[0] == cell[0] and SNAKE_POSITION[1] == cell[1]:
+            if LIVES == 1:
+                game_over()
+            else:
+                LIVES -= 1
+                respawn()
 
-    message_to_screen("Score: " + str(score), white, 10, 'small', 120, 0)
-    message_to_screen("Lives: " + str(lives), white, 10, 'small', 500, 0)
+    message_to_screen("Score: " + str(SCORE),
+                      GameColor.WHITE.value, 10, 'small',
+                      SCORE_TEXT_POSITION[0], SCORE_TEXT_POSITION[1])
+    message_to_screen("Lives: " + str(LIVES),
+                      GameColor.WHITE.value, 10, 'small',
+                      LIVES_TEXT_POSITION[0], LIVES_TEXT_POSITION[1])
     pygame.display.update()
-    pygame.time.Clock().tick(snake_speed)
+    pygame.time.Clock().tick(GAME_SPEED)
 
 
 pygame.quit()
 quit()
-
