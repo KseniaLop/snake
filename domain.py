@@ -1,7 +1,34 @@
 from dataclasses import dataclass
 from enum import Enum
+import random
 
 from pygame import Color
+import game_data as gd
+
+
+def _decrease_speed():
+    gd.GAME_SPEED -= 5
+
+
+def _add_score():
+    gd.SCORE += 10
+
+
+def _add_tail():
+    gd.SNAKE_BODY.append(gd.SNAKE_BODY[-1])
+
+
+def get_random_fruit_buff():
+    func = random.choice([_decrease_speed, _add_score, _add_tail])
+
+    if func == _decrease_speed:
+        gd.FRUIT_COLOR = GameColor.RED.value
+    elif func == _add_score:
+        gd.FRUIT_COLOR = GameColor.BLUE.value
+    elif func == _add_tail:
+        gd.FRUIT_COLOR = GameColor.PURPLE.value
+
+    return func
 
 
 class GameColor(Enum):
@@ -10,6 +37,7 @@ class GameColor(Enum):
     RED = Color(255, 0, 0)
     GREEN = Color(0, 255, 0)
     BLUE = Color(0, 0, 255)
+    PURPLE = Color(100, 0, 20)
 
 
 class Direction(Enum):
