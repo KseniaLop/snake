@@ -6,6 +6,8 @@ import game_data as gd
 import domain
 
 pygame.init()
+pygame.mixer.music.load('audio/background-music.ogg')
+pygame.mixer.music.play(-1)
 
 pygame.display.set_caption(gd.GAME_DATA.get_window_title())
 GAME_WINDOW = pygame.display.set_mode((gd.GAME_DATA.get_window_width(),
@@ -29,6 +31,8 @@ def message_to_screen(msg, color, y_displace, size, win_x, win_y):
 
 def pause():
     paused = True
+    pygame.mixer.music.pause()
+
     while paused:
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
@@ -36,18 +40,19 @@ def pause():
             if e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_c:
                     paused = False
+                    pygame.mixer.music.unpause()
                 elif e.key == pygame.K_q:
                     quit()
 
         GAME_WINDOW.fill(gd.GameColor.WHITE.value)
         message_to_screen("Paused",
-                          gd.GameColor.BLACK.value,
+                          gd.GameColor.SKY.value,
                           -100,
                           'large',
                           gd.GAME_DATA.get_window_width(),
                           gd.GAME_DATA.get_window_height())
         message_to_screen("Нажми C, чтобы продолжить, или Q, чтобы выйти",
-                          gd.GameColor.BLACK.value,
+                          gd.GameColor.SKY.value,
                           25,
                           'small',
                           gd.GAME_DATA.get_window_width(),
@@ -139,10 +144,10 @@ while not gd.GAME_EXIT:
         generate_food()
         gd.FRUIT_SPAWN = True
 
-    GAME_WINDOW.fill(gd.GameColor.BLACK.value)
+    GAME_WINDOW.fill(gd.GameColor.SKY.value)
 
     for cell in gd.SNAKE_BODY:
-        pygame.draw.rect(GAME_WINDOW, gd.GameColor.GREEN.value,
+        pygame.draw.rect(GAME_WINDOW, gd.GameColor.ORANGE.value,
                          pygame.Rect(cell[0], cell[1], 10, 10))
     pygame.draw.rect(GAME_WINDOW, gd.FRUIT_COLOR, pygame.Rect(
         gd.FRUIT_POSITION[0], gd.FRUIT_POSITION[1], 10, 10))

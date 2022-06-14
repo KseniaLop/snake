@@ -8,12 +8,9 @@ GAME_SPEED = GAME_DATA.get_default_game_speed()
 SCORE_TEXT_POSITION = GAME_DATA.get_score_text_position()
 LIVES_TEXT_POSITION = GAME_DATA.get_lives_text_position()
 
-SNAKE_POSITION = [100, 50]
+SNAKE_POSITION = GAME_DATA.get_default_snake_position()
 
-SNAKE_BODY = [(100, 50),
-              (90, 50),
-              (80, 50),
-              (70, 50)]
+SNAKE_BODY = GAME_DATA.get_default_snake_body()
 
 FRUIT_COLOR = GameColor.WHITE.value
 FRUIT_BUFF_FUNC = get_random_fruit_buff()

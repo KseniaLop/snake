@@ -32,12 +32,12 @@ def get_random_fruit_buff():
 
 
 class GameColor(Enum):
-    BLACK = Color(0, 0, 0)
     WHITE = Color(255, 255, 255)
-    RED = Color(255, 0, 0)
-    GREEN = Color(0, 255, 0)
+    SKY = Color(180, 207, 236)
+    RED = Color(254, 77, 77)
+    ORANGE = Color(255, 132, 0)
     BLUE = Color(0, 0, 255)
-    PURPLE = Color(100, 0, 20)
+    PURPLE = Color(226, 56, 236)
 
 
 class Direction(Enum):
